@@ -75,8 +75,12 @@ WSGI_APPLICATION = 'vgh_django.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'vgh',
+        'USER': 'django_client',
+        'PASSWORD': 'MySQL-Djang0!',
+        'HOST': 'localhost',
+        'PORT': '3306'
     }
 }
 
