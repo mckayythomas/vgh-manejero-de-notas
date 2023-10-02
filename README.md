@@ -45,7 +45,7 @@ the folowing urls to view the web app home page.
 # Useful Websites
 
 {Make a list of websites that you found helpful in this project}
-* [Web Site Name](http://url.link.goes.here)
+* [Dev.io My personal django rest framework serializer notes](https://dev.to/abdenasser/my-personal-django-rest-framework-serializer-notes-2i22)
 * [Web Site Name](http://url.link.goes.here)
 
 # Future Work
