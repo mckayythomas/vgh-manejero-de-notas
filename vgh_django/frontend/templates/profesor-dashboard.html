@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+<main>
+    <div id="table-container" class="container mx-auto">
+        <table class="table table-boardered">
+            <thead>
+                <tr>
+                    <th class="text-center bg-dark text-white">Nivel</th>
+                    <th class="text-center bg-dark text-white">Grado</th>
+                    <th class="text-center bg-dark text-white">Sección</th>
+                    <th class="text-center bg-dark text-white">Materia</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                <!-- Populate data through AJAX -->
+            </tbody>
+        </table>
+    </div>
+</main>
+{% endblock %}
+
+{% block javascript %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Function to populate the table
+        function populateTable(data) {
+            const tableBody = $('#table-body');
+            tableBody.empty(); // Clear any existing rows
+
+            data.forEach(function (item) {
+                const row = $('<tr>');
+                row.append('<td class="text-center">' + item.nivel + '</td>');
+                row.append('<td class="text-center">' + item.grado + '</td>');
+                row.append('<td class="text-center">' + item.seccion + '</td>');
+                row.append('<td class="text-center">' + item.matria + '</td>');
+
+                tableBody.append(row);
+            });
+        }
+
+        // Fetch data from API
+        $.ajax({
+            url: 'http://127.0.0.1:8000/api/profesor-dashboard/profesores/12/clases/',
+            type: 'GET',
+            success: function (data) {
+                // Call the function to populate the table
+                populateTable(data);
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+    });
+</script>
+{% endblock %}

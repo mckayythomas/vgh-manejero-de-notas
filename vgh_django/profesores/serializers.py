@@ -33,16 +33,19 @@ class ClaseDetallesSerializer(serializers.ModelSerializer):
         profesor = representation['profesor']
         departamento = representation['departamento']
         seccion = representation['seccion']['seccion'] 
+        nivel = representation['nivel']['nivel']
 
         # Create the formatted representation
         formatted_data = {
             'clase_id': clase_id,
             'matria': matria,
             'ano': ano,
+            'nivel': nivel,
             'grado': grado,
+            'seccion': seccion,
             'profesor_id': profesor,
             'departamento': departamento,
-            'seccion': seccion,  # Include the seccion field
+
         }
 
         return formatted_data
@@ -90,10 +93,15 @@ class NotasDeEstudianteSerializer(serializers.ModelSerializer):
             "nota": nota_data         
         }
 
+        etc_data = {
+            "estudiante_tiene_clase_id": instance.estudiante_tiene_clase.estudiante_tiene_clase_id,
+            "clase_id": instance.estudiante_tiene_clase.clase.clase_id
+        }
 
         # Construct the final representation
         representation = {
-            "estudiante": estudiante_data
+            "estudiante": estudiante_data,
+            "estudiante_tiene_clase": etc_data
         }
 
         return representation

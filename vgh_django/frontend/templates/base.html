@@ -27,14 +27,12 @@
             </div>
         </div>
     </header>
-    
-    <main>
-        <div>
+    {% block content %}
 
-        </div>
-    </main>
-    <footer class="footer bg-light text-center py-3">
+    {% endblock %}
+    <footer class="footer bg-light text-center py-3 fixed-bottom">
         <p class="mb-0">&copy; 2023 McKay Thomas. All rights reserved</p>
-    </footer>    
+    </footer>
+    {% block javascript %}{% endblock %}   
 </body>
 </html>
