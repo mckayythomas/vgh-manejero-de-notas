@@ -1,7 +1,19 @@
 from rest_framework import serializers
-from models.models import Clase, Nivel, Seccion
+from models.models import Clase, Estudiante, NotasDeEstudiante, Nivel, Seccion, EstudianteTieneClase
 
-class ClaseSerializer(serializers.ModelSerializer):
+
+class NivelSerializer(serializers.ModelSerializer):
+    class Meta: 
+        model = Nivel
+        fields = '__all__'
+
+class SeccionSerializer(serializers.ModelSerializer):
+    class Meta: 
+        model = Seccion
+        fields = '__all__'
+class ClaseDetallesSerializer(serializers.ModelSerializer):
+    nivel = NivelSerializer(read_only=True)
+    seccion = SeccionSerializer(read_only=True)
 
     class Meta:
         model = Clase
@@ -9,3 +21,81 @@ class ClaseSerializer(serializers.ModelSerializer):
 
     def get_clase_de_profesor(self, profesor_id):
         return Clase.objects.filter(profesor_id=profesor_id)
+    
+    def to_representation(self, instance):
+        representation = super(ClaseDetallesSerializer, self).to_representation(instance)
+
+        # Extract relevant fields from the representation
+        clase_id = representation['clase_id']
+        matria = representation['matria']
+        ano = representation['ano']
+        grado = representation['grado']
+        profesor = representation['profesor']
+        departamento = representation['departamento']
+        seccion = representation['seccion']['seccion'] 
+
+        # Create the formatted representation
+        formatted_data = {
+            'clase_id': clase_id,
+            'matria': matria,
+            'ano': ano,
+            'grado': grado,
+            'profesor_id': profesor,
+            'departamento': departamento,
+            'seccion': seccion,  # Include the seccion field
+        }
+
+        return formatted_data
+    
+class ClaseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Clase
+        fields = '__all__'
+
+class EstudianteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Estudiante
+        fields = '__all__'
+
+class EstudianteTieneClaseSerializer(serializers.ModelSerializer):
+    estudiante = EstudianteSerializer()
+
+    class Meta:
+        model = EstudianteTieneClase
+        fields = '__all__'
+
+from rest_framework import serializers
+
+class NotasDeEstudianteSerializer(serializers.ModelSerializer):
+    estudiante_tiene_clase = EstudianteTieneClaseSerializer()
+
+    class Meta:
+        model = NotasDeEstudiante
+        fields = '__all__'
+
+    def to_representation(self, instance):
+        # Serialize the nota nested data
+        nota_data = {
+            "nota_id": instance.nota_id,
+            "bimestre": instance.bimestre,
+            "nota": instance.nota,
+            "comentario": instance.comentario
+        }
+
+        # Serialize the student object
+        estudiante_data = {
+            "estudiante_id": instance.estudiante_tiene_clase.estudiante.estudiante_id,
+            "nombres": instance.estudiante_tiene_clase.estudiante.nombres,
+            "apellidos": instance.estudiante_tiene_clase.estudiante.apellidos,
+            "nota": nota_data         
+        }
+
+
+        # Construct the final representation
+        representation = {
+            "estudiante": estudiante_data
+        }
+
+        return representation
+
+
