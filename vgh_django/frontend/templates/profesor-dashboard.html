@@ -3,9 +3,14 @@
 
 {% block content %}
 <main>
-    <div id="table-container" class="container mx-auto">
+    <div id="table-title-container" class="justify-content-around  align-items-center">
+        <h2 class="text-center mt-3">Tus Clases</h2>
+        <div class="d-flex align-items-center mt-3" id="button-container">
+        </div>
+    </div>
+    <div id="table-container" class="container mx-auto mt-1" style="margin-bottom: 75px;">
         <table class="table table-boardered">
-            <thead>
+            <thead id="table-headers" class="sticky-md-top ">
                 <tr>
                     <th class="text-center bg-dark text-white">Nivel</th>
                     <th class="text-center bg-dark text-white">Grado</th>
@@ -19,40 +24,228 @@
         </table>
     </div>
 </main>
+<style>
+    table tr:hover {
+        background-color: #d5d4d4; /* Change to the desired background color */
+        cursor: pointer;
+    }
+</style>
 {% endblock %}
 
 {% block javascript %}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    $(document).ready(function () {
-        // Function to populate the table
-        function populateTable(data) {
-            const tableBody = $('#table-body');
-            tableBody.empty(); // Clear any existing rows
+$(document).ready(function () {
+    // Init Nivel Grado and Seccion
+    let nivel, grado, seccion, claseId;
+    // Function to update the <h2> element with class information
+    function updateH2Text(nivel, grado, seccion) {
+        const h2Element = $('h2');
+        h2Element.text(`Clase ${grado} ${seccion} ${nivel}`);
+    }
 
-            data.forEach(function (item) {
-                const row = $('<tr>');
-                row.append('<td class="text-center">' + item.nivel + '</td>');
-                row.append('<td class="text-center">' + item.grado + '</td>');
-                row.append('<td class="text-center">' + item.seccion + '</td>');
-                row.append('<td class="text-center">' + item.matria + '</td>');
+    const estudianteTableHeaders = ['Nombres', 'Apellidos', 'Nota', 'Comentario', 'Bimestre'];
 
-                tableBody.append(row);
-            });
-        }
+    // Function to populate the table with estudiante data
+    function populateEstudianteTable(data, headers) {
+        const tableBody = $('#table-body');
+        tableBody.empty(); // Clear any existing rows
 
-        // Fetch data from API
-        $.ajax({
-            url: 'http://127.0.0.1:8000/api/profesor-dashboard/profesores/12/clases/',
+        // Update table headers
+        const tableHeaders = $('#table-headers');
+        tableHeaders.empty();
+
+        const headerRow = $('<tr>');
+        headers.forEach(function (header) {
+            headerRow.append('<th class="text-center bg-dark text-white">' + header + '</th>');
+        });
+        tableHeaders.append(headerRow);
+
+        data.forEach(function (estudiante) {
+            const row = $('<tr id="'+ estudiante.estudiante.nota.nota_id + '">');
+            row.append('<td class="text-center">' + estudiante.estudiante.nombres + '</td>');
+            row.append('<td class="text-center">' + estudiante.estudiante.apellidos + '</td>');
+            const nota = estudiante.estudiante.nota.nota ? estudiante.estudiante.nota.nota : 'no asignado';
+            const comentario = estudiante.estudiante.nota.comentario ? estudiante.estudiante.nota.comentario : 'no asignado';
+            row.append('<td class="text-center">' + nota + '</td>');
+            row.append('<td class="text-center">' + comentario + '</td>');
+            row.append('<td class="text-center">' + estudiante.estudiante.nota.bimestre + '</td>');
+
+            tableBody.append(row);
+        });
+    }
+
+    // Click event handler for clase rows
+    $('body').on('click', '.clase-row', function () {
+        claseId = $(this).data('clase-id');
+        // Set new h2 values
+        nivel = $(this).data('nivel');
+        grado = $(this).data('grado');
+        seccion = $(this).data('seccion');
+        getEstudiantes(claseId);
+
+    });
+
+    function getEstudiantes(claseId) {
+                // Fetch estudiante data for the selected clase using AJAX
+                $.ajax({
+            url: 'http://127.0.0.1:8000/api/profesor-dashboard/clase/' + claseId + '/estudiantes/',
             type: 'GET',
-            success: function (data) {
-                // Call the function to populate the table
-                populateTable(data);
+            success: function (estudianteData) {
+                // Call the function to populate the estudiante table with data and headers
+                populateEstudianteTable(estudianteData, estudianteTableHeaders);
+
+                // Set new title
+                updateH2Text(nivel, grado, seccion);
+                createEditarNotasButton();
             },
             error: function (error) {
                 console.log(error);
             }
         });
+    };
+
+        // Function to create and append the "Editar Notas" button
+    function createEditarNotasButton() {
+        const buttonContainer = $('#button-container');
+        buttonContainer.empty()
+        const editarNotasButton = $('<button id="editarNotasBtn" class="btn btn-primary">Editar Notas</button>');
+        const tableHeaderCont = $('#table-title-container');
+        tableHeaderCont.addClass('d-flex mb-3')
+        editarNotasButton.click(function () {
+            const tableBody =$('#table-body');
+
+            // create each row with a drop down nota menu
+            tableBody.find('tr').each(function () {
+            const row = $(this);
+            const notaCell = row.find('td:eq(2)'); // Assuming the 'Nota' column is at index 2
+
+            // Get the current nota text
+            const currentNota = notaCell.text().trim();
+
+            // Create a drop-down input
+            const dropdown = $('<select class="form-control"></select>');
+            const options = ['','AD', 'A', 'B', 'C'];
+
+            // Populate the drop-down with options
+            options.forEach(function (option) {
+                const selected = currentNota === option ? 'selected' : '';
+                dropdown.append(`<option value="${option}" ${selected}>${option}</option>`);
+            });
+            // Replace the cell with drop-down input
+            notaCell.empty().append(dropdown);
+
+            // Change comentario to text input
+            tableBody.find('tr').each(function () {
+                const row = $(this);
+                const comentarioCell = row.find('td:eq(3)'); // Assuming the 'Comentario' column is at index 3
+
+                // Get the current comentario text
+                const currentComentario = comentarioCell.text().trim();
+                console.log(currentComentario)
+                // Create a text input
+                const input = $('<input type="text" class="form-control ">');
+
+                // Set the input's value to the current comentario                
+                input.val(currentComentario);
+
+                // Replace the comentario text with the text input
+                comentarioCell.empty().append(input);
+            });
+
+
+            // Create hacer cambios button
+            const buttonContainer = $('#button-container');
+            const hacerCambiosButton = $('<button id="hacerCambiosBtn" class="btn btn-danger">Hacer Cambios</button>');
+            const tableHeaderCont = $('#table-title-container');
+            tableHeaderCont.addClass('d-flex');
+            hacerCambiosButton.click(function () {
+                const tableBody = $('#table-body');
+                const updateRequests = [];
+
+                tableBody.find('tr').each(function () {
+                    const row = $(this);
+                    const notaId = $(this).attr('id');
+
+                    const notaCell = row.find('td:eq(2) select'); // Assuming the 'Nota' column is at index 2
+                    const comentarioCell = row.find('td:eq(3) input'); // Assuming the 'Comentario' column is at index 3
+
+                    const nota = notaCell.val();
+                    const comentario = comentarioCell.val();
+
+                    console.log(`nota: ${nota}, comentario: ${comentario}`);
+
+                    if (comentario === '' || nota === '') {
+                        return
+                    };
+                  
+                    // Make an AJAX PUT request for each row
+                    const updateRequest = $.ajax({
+                        url: `http://127.0.0.1:8000/api/profesor-dashboard/nota/${notaId}/update`,
+                        type: 'PUT',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            nota: nota,
+                            comentario: comentario,
+                        }),
+                    });
+                    updateRequests.push(updateRequest);
+
+                });
+                getEstudiantes(claseId);
+                createEditarNotasButton();
+            });
+            buttonContainer.empty();    
+            buttonContainer.append(hacerCambiosButton);
+            
     });
+
+        });
+
+        buttonContainer.empty(); // Clear any existing buttons
+        buttonContainer.append(editarNotasButton);
+    };
+
+    
+
+    // Function to populate the table with clase data
+    function populateClaseTable(data) {
+        const tableBody = $('#table-body');
+        tableBody.empty(); // Clear any existing rows
+
+        data.forEach(function (item) {
+            const row = $('<tr>');
+
+            // Add a data-clase-id attribute to the row with the clase ID
+            row.attr('data-clase-id', item.clase_id);
+            row.attr('data-nivel', item.nivel);
+            row.attr('data-grado', item.grado);
+            row.attr('data-seccion', item.seccion);
+
+            row.addClass('clase-row');
+
+            row.append('<td class="text-center">' + item.nivel + '</td>');
+            row.append('<td class="text-center">' + item.grado + '</td>');
+            row.append('<td class="text-center">' + item.seccion + '</td>');
+            row.append('<td class="text-center">' + item.matria + '</td>');
+
+            tableBody.append(row);
+        });
+    }
+
+    // Fetch clase data from API
+    $.ajax({
+        url: 'http://127.0.0.1:8000/api/profesor-dashboard/profesores/12/clases/',
+        type: 'GET',
+        success: function (claseData) {
+            // Call the function to populate the table with clase data
+            populateClaseTable(claseData);
+            claseHeader = data;
+        },
+        error: function (error) {
+            console.log(error);
+        }
+    });
+});
 </script>
 {% endblock %}

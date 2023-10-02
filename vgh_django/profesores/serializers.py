@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from models.models import Clase, Estudiante, NotasDeEstudiante, Nivel, Seccion, EstudianteTieneClase
 
-
+# GET request serializers
 class NivelSerializer(serializers.ModelSerializer):
     class Meta: 
         model = Nivel
@@ -107,3 +107,8 @@ class NotasDeEstudianteSerializer(serializers.ModelSerializer):
         return representation
 
 
+# PUT request serializer
+class NotasDeEstudianteUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NotasDeEstudiante
+        fields = ['nota', 'comentario']

@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     # api apps
     'models',
     'profesores',
+    'tutores',
     # UI apps
     'frontend',
 ]
@@ -88,9 +89,10 @@ DATABASES = {
         'USER': 'django_client',
         'PASSWORD': 'MySQL-Djang0!',
         'HOST': 'localhost',
-        'PORT': '3306'
-    }
+        'PORT': '3306',
+    },
 }
+
 
 
 # Password validation
