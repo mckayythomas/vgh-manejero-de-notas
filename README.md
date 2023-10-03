@@ -11,13 +11,22 @@ This proposed solution involves a Django API web server that accesses a MySQL da
 
 A jquery front end also hosted in Django, is used for a user interface directly built to give professors and administrators an easy way to view student data. 
 
-The file structure takes a modular approach separating the database items from the frontend items and from the API backend. This allows for large saleability and easy code restructure as needed
+The file structure takes a modular approach separating the database items from the frontend items and from the API backend. This allows for large saleability and easy code restructure as needed. The SQL database is included in the file structure at the root and can be used to run the application as needed.
 
-To view this web app you need to clone the repository and navigate to the vgh-django project folder with in. Once in the directory the following command line commands can be run:
+To start this web app you first need to download the SQL database. This can be found here:
+[VGH Database](./VGH-Database-Backup.sql)
 
+In MySQL workbench or the MySQL Shell, run the database file and make sure that the MySQL service is running on port 3306. If you don't have MySQL you can download it from here:
+[MySQL Download](https://dev.mysql.com/downloads/workbench/)
+
+Once the database is set up you can proceed to start the web application. To view this web app you need to clone the repository and navigate to the vgh-django project folder with in. Once in the directory the following command line commands can be run:
+
+```bash
 python makemigrations
 python migrate
 python manage.py runserver
+```
+
 
 Once the server is running and you see a successful set up message one can navigate to the following urls to view the web app home page:
 [http://127.0.0.1:8000/dashboard/profesor/](http://127.0.0.1:8000/dashboard/profesor/)
