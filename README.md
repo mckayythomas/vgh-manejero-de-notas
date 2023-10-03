@@ -38,12 +38,18 @@ python makemigrations
 python migrate
 python manage.py runserver
 ```
+For access to the database you should have the following fields in your .env file:
 
+```.env
+DB_NAME = vgh
+DB_USER = django_client
+DB_PASS = MySQL-Djang0!
+```
 
 Once the server is running and you see a successful set up message one can navigate to the following urls to view the web app home page:
-[http://127.0.0.1:8000/dashboard/profesor/](http://127.0.0.1:8000/dashboard/profesor/)
-[http://127.0.0.1:8000/dashboard/tutor/](http://127.0.0.1:8000/dashboard/tutor/)
-[http://127.0.0.1:8000/dashboard/director/](http://127.0.0.1:8000/dashboard/director/)
+* [http://127.0.0.1:8000/dashboard/profesor/](http://127.0.0.1:8000/dashboard/profesor/)
+* [http://127.0.0.1:8000/dashboard/tutor/](http://127.0.0.1:8000/dashboard/tutor/)
+* [http://127.0.0.1:8000/dashboard/director/](http://127.0.0.1:8000/dashboard/director/)
 
 Each web page also has buttons in the nav bar to navigate between them.
 
