@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+<main>
+    <div id="table-title-container" class="justify-content-around  align-items-center">
+        <h2 class="text-center mt-3" id="nivel"></h2>
+    </div>
+    <div id="table-container" class="container mx-auto mt-2" style="margin-bottom: 75px;">
+        <table class="table table-boardered">
+            <thead id="table-headers" class="sticky-md-top ">
+                <tr>
+                    <th class="text-center bg-dark text-white">Tutor</th>
+                    <th class="text-center bg-dark text-white">Grado</th>
+                    <th class="text-center bg-dark text-white">Sección</th>
+                    <th class="text-center bg-dark text-white">Año</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                <!-- Populate data through AJAX -->
+            </tbody>
+        </table>
+    </div>
+</main>
+<style>
+    table tr:hover {
+        background-color: #d5d4d4;
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
+
+{% block javascript %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Function to populate the tutoria table
+        function populateTutoriaTable() {
+            // API URL for the tutoria clase data
+            let apiUrl = 'http://127.0.0.1:8000/api/director-dashboard/nivel/1/clases';
+            // Make an AJAX GET request to fetch data
+            $.get(apiUrl, function (tutoriaData) {
+                // Set the nivel in the h2 title
+                $('#nivel').text(tutoriaData[0].nivel);
+
+                // Clear the existing table headers and body
+                $('#table-headers').empty();
+                $('#table-body').empty();
+
+                // Add new table headers
+                let tableHeaders = '<tr>' +
+                    '<th class="text-center bg-dark text-white">Tutor</th>' +
+                    '<th class="text-center bg-dark text-white">Grado</th>' +
+                    '<th class="text-center bg-dark text-white">Sección</th>' +
+                    '<th class="text-center bg-dark text-white">Año</th>' +
+                    '</tr>';
+                $('#table-headers').append(tableHeaders);
+
+                // Loop through the data and populate the table
+                $.each(tutoriaData, function (index, clase) {
+                    let row = '<tr id="' + clase.tutoria_id + '" class="tutoria-row">' + 
+                        '<td class="text-center">' + clase.profesor.nombres + ' ' + clase.profesor.apellidos + '</td>' +
+                        '<td id="' + clase.grado + '" class="text-center">' + clase.grado + '</td>' +
+                        '<td id="' + clase.seccion + '" class="text-center">' + clase.seccion + '</td>' +
+                        '<td class="text-center">' + clase.ano + '</td>' +
+                        '</tr>';
+                    $('#table-body').append(row);
+                });
+
+                // Add click event listener for seeing students in a tutoria
+                $('#table-body').on('click', '.tutoria-row', function () {
+                    // Get tutoria Id
+                    let tutoriaId = $(this).attr('id');
+                    // Get grado and seccion id's from their td
+                    let gradoTd = $(this).find('td:eq(1)');
+                    let seccionTd = $(this).find('td:eq(2)');
+                    const grado = gradoTd.attr('id');
+                    const seccion = seccionTd.attr('id');
+                    populateStudentTable(tutoriaId, seccion, grado);
+                });
+            });
+        }
+
+        // Function to populate the student table
+        function populateStudentTable(tutoriaId, seccion, grado) {
+            // API URL for student data
+            let studentApiUrl = 'http://127.0.0.1:8000/api/director-dashboard/tutoria/' + tutoriaId + '/estudiantes';
+
+            // Make an AJAX GET request to fetch student data
+            $.get(studentApiUrl, function (studentData) {
+                // Clear the existing table headers and body
+                $('#table-headers').empty();
+                $('#table-body').empty();
+
+                // Replace title with tutoria title
+                let $title = $('#nivel');
+                $title.text($title.text() + ' ' + grado + ' ' + seccion)
+
+                // Add new table headers for student data
+                let studentHeaders = '<tr>' +
+                    '<th class="text-center bg-dark text-white">Nombres</th>' +
+                    '<th class="text-center bg-dark text-white">Apellidos</th>' +
+                    '</tr>';
+                $('#table-headers').append(studentHeaders);
+
+                // Loop through the student data and populate the table
+                $.each(studentData, function (index, student) {
+                    let studentRow = '<tr id="' + student.estudiante_id + '" class="student-row">' +
+                        '<td id="' + student.nombres + '" class="text-center">' + student.nombres + '</td>' +
+                        '<td id="' + student.apellidos + '" class="text-center">' + student.apellidos + '</td>' +
+                        '</tr>';
+                    $('#table-body').append(studentRow);
+                });
+
+                // Add click events for populating students grades
+                $('#table-body').on('click', '.student-row', function () {
+                    // Get nombre, apellidos, and estudiante_id
+                    let estudianteId = $(this).attr('id');
+                    let nombresTd = $(this).find('td:eq(0)');
+                    let apellidosTd = $(this).find('td:eq(1)');
+                    const nombres = nombresTd.attr('id');
+                    const apellidos = apellidosTd.attr('id');
+                    populateEstudianteNotas(estudianteId, nombres, apellidos)
+                });
+            });
+        }
+
+        // Function to populate student notes
+        function populateEstudianteNotas(estudianteId, nombres, apellidos) {
+            // API URL for student notes data
+            let notasApiUrl = 'http://127.0.0.1:8000/api/director-dashboard/estudiante/' + estudianteId + '/notas';
+        
+            // Make an AJAX GET request to fetch student notes data
+            $.get(notasApiUrl, function (notasData) {
+                // Clear the existing table headers and body
+                $('#table-headers').empty();
+                $('#table-body').empty();
+
+                let $title = $('#nivel');
+                $title.text(nombres + ' ' + apellidos)
+
+            
+                // Add new table headers for student notes data
+                let notasHeaders = '<tr>' +
+                    '<th class="text-center bg-dark text-white">Bimestre</th>' +
+                    '<th class="text-center bg-dark text-white">Materia</th>' +
+                    '<th class="text-center bg-dark text-white">Nota</th>' +
+                    '<th class="text-center bg-dark text-white">Comentario</th>' +
+                    '</tr>';
+                $('#table-headers').append(notasHeaders);
+                
+                // Loop through the student notes data and populate the table
+                $.each(notasData, function (index, nota) {
+                    let notaRow = '<tr>' +
+                        '<td class="text-center">' + nota.estudiante.clase.nota.bimestre + '</td>' +
+                        '<td class="text-center">' + nota.estudiante.clase.matria + '</td>' +
+                        '<td class="text-center">' + (nota.estudiante.clase.nota.nota || 'No Asignado') + '</td>' +
+                        '<td class="text-center">' + (nota.estudiante.clase.nota.comentario || 'No Asignado') + '</td>' +
+                        '</tr>';
+                    $('#table-body').append(notaRow);
+                });
+            });
+        }
+
+        // Call the populateTutoriaTable function to load the initial data
+        populateTutoriaTable();
+    });
+</script>
+{% endblock %}
+
