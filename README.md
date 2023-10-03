@@ -19,9 +19,21 @@ To start this web app you first need to download the SQL database. This can be f
 In MySQL workbench or the MySQL Shell, run the database file and make sure that the MySQL service is running on port 3306. If you don't have MySQL you can download it from here:
 [MySQL Download](https://dev.mysql.com/downloads/workbench/)
 
-Once the database is set up you can proceed to start the web application. To view this web app you need to clone the repository and navigate to the vgh-django project folder with in. Once in the directory the following command line commands can be run:
+Once the database is set up you can proceed to start the web application. 
+
+We will first start a virtual environment and install all needed dependencies. 
 
 ```bash
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+pip install -r requirements.txt
+```
+
+To view this web app you need to clone the repository and navigate to the vgh-django project folder with in. Once in the directory the following command line commands can be run:
+
+```bash
+cd vgh_django
 python makemigrations
 python migrate
 python manage.py runserver
