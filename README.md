@@ -21,7 +21,7 @@ In MySQL workbench or the MySQL Shell, run the database file and make sure that 
 
 Once the database is set up you can proceed to start the web application. 
 
-We will first start a virtual environment and install all needed dependencies. 
+We will first start a virtual environment and install all needed libraries. 
 
 ```bash
 python -m venv venv
